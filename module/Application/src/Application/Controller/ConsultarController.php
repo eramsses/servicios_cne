@@ -15,6 +15,7 @@ use Zend\View\Model\ViewModel;
 
 /* Aquí los Modelos */
 use Application\Model\CnePersonasModel;
+use Application\Model\EstadisticaConsultas;
 use Application\Extras\Utilidades\Fechas;
 
 class ConsultarController extends AbstractActionController {
@@ -41,20 +42,30 @@ class ConsultarController extends AbstractActionController {
     public function getdatosserviceAction() {
         $this->dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter');
         $cne_personas_model = new CnePersonasModel($this->dbAdapter);
+        $estadisticas_model = new EstadisticaConsultas($this->dbAdapter);
 
-        $utilidad_fechas = new Fechas();
+        $hoy = \date("Y-m-d H:i:s");
 
         $datosFormularios = $this->request->getPost()->toArray();
 
+        if (!isset($datosFormularios['por'])) {
+            $r['resp'] = "error";
+            $r['mensaje'] = "Se esperaba un argumento por.";
+            $r['info'] = "";
+            echo \json_encode($r);
+            exit;
+        }
+
         if (!isset($datosFormularios['identidad'])) {
             $r['resp'] = "error";
-            $r['mensaje'] = "Se esperaba un argumento.";
+            $r['mensaje'] = "Se esperaba un argumento identidad.";
             $r['info'] = "";
             echo \json_encode($r);
             exit;
         }
 
         $identidad = $datosFormularios['identidad'];
+        $por = $datosFormularios['por'];
 
 
         $patron_1 = "/^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/";
@@ -71,8 +82,20 @@ class ConsultarController extends AbstractActionController {
 
         $info_persona = $cne_personas_model->getInfoPersona_cne($identidad);
 
+        $est_respuesta = "NO ENCONTRADA";
+        if ($info_persona) {
+            $est_respuesta = "ENCONTRADA";
+        }
+
         //Agregar los guiones a la identidad para la presentación
         $id = $this->agregarGuionesIdentidad($identidad);
+
+        $data_estadistica['identidad'] = $id;
+        $data_estadistica['respuesta'] = $est_respuesta;
+        $data_estadistica['origen_consulta'] = "SERVICIO WEB POR $por";
+        $data_estadistica['fecha'] = $hoy;
+
+        $estadisticas_model->agregarNuevo($data_estadistica);
 
         //En caso de no existir el número de identidad
         if (!$info_persona) {
@@ -84,8 +107,8 @@ class ConsultarController extends AbstractActionController {
         }
 
         $nombre_completo = $info_persona['nombres'] . " " . $info_persona['apellidos'];
-        
-        
+
+
 
         $direccion = $info_persona['nombre_lugar_poblado'] . ", " . $info_persona['nombre_municipio'] . ", " . $info_persona['nombre_departamento'];
 
@@ -93,12 +116,12 @@ class ConsultarController extends AbstractActionController {
         $info_persona['numero_identidad'] = $id;
 //        $info_persona['fecha_nacimiento_f'] = $fecha_nacimiento_f;
         $info_persona['nombre_completo'] = $nombre_completo;
-        
+
         $r['resp'] = "ok";
         $r['d'] = $info_persona;
-        
-        header('content-Type: text/html; charset=utf-8');  
-        
+
+        header('content-Type: text/html; charset=utf-8');
+
         echo \json_encode($r);
 
         exit;
@@ -110,6 +133,9 @@ class ConsultarController extends AbstractActionController {
 
             $this->dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter');
             $cne_personas_model = new CnePersonasModel($this->dbAdapter);
+            $estadisticas_model = new EstadisticaConsultas($this->dbAdapter);
+
+            $hoy = \date("Y-m-d H:i:s");
 
             $utilidad_fechas = new Fechas();
 
@@ -132,6 +158,18 @@ class ConsultarController extends AbstractActionController {
                 echo $r;
                 exit;
             }
+
+            $est_respuesta = "NO ENCONTRADA";
+            if ($info_persona) {
+                $est_respuesta = "ENCONTRADA";
+            }
+
+            $data_estadistica['identidad'] = $id;
+            $data_estadistica['respuesta'] = $est_respuesta;
+            $data_estadistica['origen_consulta'] = "PAGINA WEB";
+            $data_estadistica['fecha'] = $hoy;
+
+            $estadisticas_model->agregarNuevo($data_estadistica);
 
             //En caso de no existir el número de identidad
             if (!$info_persona) {
