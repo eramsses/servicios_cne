@@ -1,0 +1,143 @@
+
+<?php
+$this->headTitle("HN|Consultar");
+$this->head;
+?>
+
+
+<div style="padding-top: 35px;">
+    <!-- encabezado -->
+    <div class="main-header">
+        <div class="row">
+            <div class="col-lg-9">
+                <h2>Ingresar la Identidad Para Consultar</h2>
+                <em>Ingrese el número de documento con o sin guiones 0801-1950-12345 ó 0801195012345</em>
+            </div>
+            <div class="col-lg-3" style="margin-top: 0px;">
+                <div class="btn-group pull-right" style="padding-top: 10px;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /encabezado -->
+
+
+
+
+    <div class="box-header">
+        <h3 class="box-title">Consultar Identidad</h3>
+    </div><!-- /.box-header -->
+    <hr>
+
+    <div class="jumbotron" >
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon" id="sizing-addon1">Identidad</span>
+                    <input type="text" class="form-control" name="identidad" id="identidad" 
+                           placeholder="0801-1950-12345 ó 0801195012345" 
+                           maxlength="15"
+                           aria-describedby="sizing-addon1">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <a href="javascript:buscarDatos()" type="button" id="btn_Consultar" class="btn btn-primary  next " ><span class="icon icon-std icon-printer"></span> Consultar </a>
+            </div>
+        </div>
+    </div>
+    <div id="_respuesta"></div>
+    
+
+</div>
+
+<script type="text/javascript">
+
+
+
+    $("#identidad").keyup(function () {
+        var buscar = $(this).val();
+
+        if (buscar.length === 15 || buscar.length === 13) {
+            var regexp;
+            var regexp2;
+            var regexp3;
+            regexp = /^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/;
+            regexp2 = /^[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/;
+            regexp3 = /^[0-9]{13}$/;
+            if (!regexp.test(buscar) && !regexp2.test(buscar) && !regexp3.test(buscar))
+            {
+                $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:\n\<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
+            } else {
+                getInfo();
+            }
+        } else {
+            $("#_respuesta").html("");
+            $('#btn_Consultar').removeClass('disabled');
+        }
+
+    });
+
+    function buscarDatos() {
+        var buscar = $("#identidad").val();
+        $('#btn_Consultar').addClass('disabled');
+        if (buscar.length === 15 || buscar.length === 13) {
+            var regexp;
+            var regexp2;
+            var regexp3;
+            regexp = /^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/;
+            regexp2 = /^[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/;
+            regexp3 = /^[0-9]{13}$/;
+            if (!regexp.test(buscar) && !regexp2.test(buscar) && !regexp3.test(buscar))
+            {
+                $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:\n\<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
+
+            } else {
+                getInfo();
+                $("#identidad").val("")
+            }
+        } else {
+            $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad no está completa.</span><br>Formatos admitidos:\n\<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
+            $('#btn_Consultar').removeClass('disabled');
+        }
+    }
+
+    function getInfo() {
+        var identidad = $("#identidad").val();
+
+        $.ajax({
+            type: "POST",
+            url: "<?php echo $this->basePath() ?>/consultar/getdatoslocal",
+            traditional: true,
+            data: {identidad: identidad},
+            beforeSend: function () {
+                $("#_respuesta").html("<div class=\"semibold\" style=\"font-size: 40px;\"><b>Procesando....</b>   <img src=\"<?php $this->basePath() ?>/img/ajax-loader.gif\" width=\"80\" ></div>");
+            },
+            success: function (data) {
+                $("#_respuesta").html(data);
+                $('#btn_Consultar').removeClass('disabled');
+            }
+        });
+    }
+
+</script>
+
+<script type="text/javascript">
+    function imprimirDiv() {
+
+
+        $("#_imprimir").css("font-size", "5px");
+
+
+        var objeto = document.getElementById('_imprimir'); //obtenemos el objeto a imprimir
+        var ventana = window.open('', '_blank'); //abrimos una ventana vacía nueva
+        ventana.document.write(objeto.innerHTML); //imprimimos el HTML del objeto en la nueva ventana
+        ventana.document.close(); //cerramos el documento
+        ventana.print(); //imprimimos la ventana
+        //ventana.close(); //cerramos la ventana
+
+
+        $("#_imprimir").css("font-size", "14px");
+
+    }
+</script>
