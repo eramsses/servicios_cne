@@ -56,7 +56,7 @@ class CnePersonasModel extends TableGateway {
         $id = \str_replace(["-"," "],"",$identidad);
        
         $SQL = "SELECT p.numero_identidad, CONCAT(p.primer_nombre, ' ', p.segundo_nombre) AS nombres, CONCAT(p.primer_apellido, ' ', p.segundo_apellido) AS apellidos, "
-                . "DATE_FORMAT(p.fecha_nacimiento,'%d-%m-%Y') as fecha_nacimiento_f, "
+                . "DATE_FORMAT(p.fecha_nacimiento,'%d-%m-%Y') as fecha_nacimiento_f, p.primer_nombre, p.segundo_nombre, p.primer_apellido, p.segundo_apellido, "
                 . "gen.descripcion_sexo, d.nombre_departamento, m.nombre_municipio, a.descripcion_area, s.nombre_sector_electoral, lp.nombre_lugar_poblado, "
                 . "chi.desc_habil_inhabil, p.numero_mesa, p.numero_linea, cv.nombre_centro AS centro_votacion, et.descripcion AS est_identidad "
                 . "FROM cne_personas AS p, cne_generos AS gen, cne_departamentos AS d, cne_municipios AS m, cne_areas AS a, cne_sectores_electorales AS s, "
