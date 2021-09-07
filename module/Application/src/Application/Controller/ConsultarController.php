@@ -92,7 +92,8 @@ class ConsultarController extends AbstractActionController {
 
         $data_estadistica['identidad'] = $id;
         $data_estadistica['respuesta'] = $est_respuesta;
-        $data_estadistica['origen_consulta'] = "SERVICIO WEB POR $por";
+        $data_estadistica['origen_consulta'] = "SERVICIO WEB";
+        $data_estadistica['solicitante'] = $por;
         $data_estadistica['fecha'] = $hoy;
 
         $estadisticas_model->agregarNuevo($data_estadistica);
@@ -167,6 +168,7 @@ class ConsultarController extends AbstractActionController {
             $data_estadistica['identidad'] = $id;
             $data_estadistica['respuesta'] = $est_respuesta;
             $data_estadistica['origen_consulta'] = "PAGINA WEB";
+            $data_estadistica['solicitante'] = "WEB";
             $data_estadistica['fecha'] = $hoy;
 
             $estadisticas_model->agregarNuevo($data_estadistica);
