@@ -51,19 +51,18 @@ return [
                     ],
                 ],
 //Fin subruta getdatoslocal
-//Subruta  getdatosservice
-                    'getdatosservice' => [
+//Subruta getinfoservice
+                    'getinfoservice' => [
                         'type' => 'Segment',
                         'options' => [
-                            'route' => '/getdatosservice',
+                            'route' => '/getinfoservice[/:identidad[/:solicitante]]',
                             'defaults' => [
                                 'controller' => 'Application\Controller\Consultar',
-                                'action' => 'getdatosservice',
+                                'action' => 'getinfoservice',
                             ],
                         ],
                     ],
-//Fin subruta getdatosservice
-
+//Fin Subruta getinfoservice
                     
                     
                 //FIN SUBRUTAS
