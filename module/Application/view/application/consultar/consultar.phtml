@@ -37,7 +37,7 @@ $this->head;
                     <span class="input-group-addon" id="sizing-addon1">Identidad</span>
                     <input type="text" class="form-control" name="identidad" id="identidad" 
                            placeholder="0801-1950-12345 ó 0801195012345" 
-                           maxlength="15"
+                           maxlength="20"
                            aria-describedby="sizing-addon1">
                 </div>
             </div>
@@ -47,7 +47,7 @@ $this->head;
         </div>
     </div>
     <div id="_respuesta"></div>
-    
+
 
 </div>
 
@@ -58,16 +58,16 @@ $this->head;
     $("#identidad").keyup(function () {
         var buscar = $(this).val();
 
-        if (buscar.length === 15 || buscar.length === 13) {
+        if (buscar.length >= 13) {
             var regexp;
             var regexp2;
             var regexp3;
-            regexp = /^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/;
-            regexp2 = /^[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/;
-            regexp3 = /^[0-9]{13}$/;
-            if (!regexp.test(buscar) && !regexp2.test(buscar) && !regexp3.test(buscar))
+            regexp = /^([0-9]*[-| ]?)?[0-9]{4}[-| ]?[0-9]{4}[-| ]?[0-9]{5}$/;
+            regexp2 = /^([0-9]*[-| ]?)?[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/;
+            regexp3 = /^([0-9]*[-| ]?)?[0-9]{13}$/;
+            if (!regexp.test(buscar))
             {
-                $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:\n\<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
+                $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
             } else {
                 getInfo();
             }
@@ -81,23 +81,24 @@ $this->head;
     function buscarDatos() {
         var buscar = $("#identidad").val();
         $('#btn_Consultar').addClass('disabled');
-        if (buscar.length === 15 || buscar.length === 13) {
+        if (buscar.length >= 13) {
             var regexp;
             var regexp2;
             var regexp3;
-            regexp = /^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/;
+            regexp = /^([0-9]*[-| ]?)?[0-9]{4}[-| ]?[0-9]{4}[-| ]?[0-9]{5}$/;
+//            regexp = /^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/;
             regexp2 = /^[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/;
             regexp3 = /^[0-9]{13}$/;
-            if (!regexp.test(buscar) && !regexp2.test(buscar) && !regexp3.test(buscar))
+            if (!regexp.test(buscar))
             {
-                $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:\n\<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
+                $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
 
             } else {
                 getInfo();
-                $("#identidad").val("")
+                $("#identidad").val("");
             }
         } else {
-            $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad no está completa.</span><br>Formatos admitidos:\n\<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
+            $("#_respuesta").html("<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad no está completa.</span><br>Formatos admitidos:<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>");
             $('#btn_Consultar').removeClass('disabled');
         }
     }
@@ -109,6 +110,7 @@ $this->head;
             type: "POST",
             url: "<?php echo $this->basePath() ?>/consultar/getdatoslocal",
             traditional: true,
+            dataType: "html",
             data: {identidad: identidad},
             beforeSend: function () {
                 $("#_respuesta").html("<div class=\"semibold\" style=\"font-size: 40px;\"><b>Procesando....</b>   <img src=\"<?php $this->basePath() ?>/img/ajax-loader.gif\" width=\"80\" ></div>");

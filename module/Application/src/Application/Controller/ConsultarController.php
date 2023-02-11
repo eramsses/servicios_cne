@@ -48,13 +48,11 @@ class ConsultarController extends AbstractActionController {
 
         $hoy = \date("Y-m-d H:i:s");
 
-
         if ($this->getRequest()->isXmlHttpRequest()) {
 
             exit;
         } else if ($this->getRequest()->isPost()) {
             $datosFormularios = $this->request->getPost()->toArray();
-
 
             if (!isset($datosFormularios['identidad'])) {
                 $r['resp'] = "error";
@@ -85,13 +83,11 @@ class ConsultarController extends AbstractActionController {
                 exit;
             }
 
-            $patron_1 = "/^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/";
-            $patron_2 = "/^[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/";
-            $patron_3 = "/^[0-9]{13}$/";
+            $patron_1 = "/^([0-9]*[-| ]?)?[0-9]{4}[-| ]?[0-9]{4}[-| ]?[0-9]{5}$/";
 
-            if (!\preg_match($patron_1, $identidad) && !\preg_match($patron_2, $identidad) && !\preg_match($patron_3, $identidad)) {
+            if (!\preg_match($patron_1, $identidad)) {
                 $r['resp'] = "errorf";
-                $r['mensaje'] = "La identidad N° $identidad no corresponde a un número correcto, se esperaba 0801-1950-12345, 0801 1950 12345, 0801195012345.";
+                $r['mensaje'] = "El DNI N° $identidad no corresponde a un número correcto, se esperaba [01]-0801-1950-12345, [01] 0801 1950 12345, 0801195012345.";
                 $r['info'] = "";
                 echo \json_encode($r);
                 exit;
@@ -118,7 +114,7 @@ class ConsultarController extends AbstractActionController {
             //En caso de no existir el número de identidad
             if (!$info_persona) {
                 $r['resp'] = "no encontrado";
-                $r['mensaje'] = "La identidad N° $id no  fue encontrada, llenar datos manualmente.";
+                $r['mensaje'] = "El DNI N° $id no  fue encontrado, llenar datos manualmente.";
                 $r['info'] = "";
                 echo \json_encode($r);
                 exit;
@@ -175,9 +171,11 @@ class ConsultarController extends AbstractActionController {
             $patron_2 = "/^[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/";
             $patron_3 = "/^[0-9]{13}$/";
 
-            if (!\preg_match($patron_1, $identidad) && !\preg_match($patron_2, $identidad) && !\preg_match($patron_3, $identidad)) {
-                $r['resp'] = "errorf";
-                $r['mensaje'] = "La identidad N° $identidad no corresponde a un número correcto, se esperaba 0801-1950-12345, 0801 1950 12345, 0801195012345.";
+            $patron_1 = "/^([0-9]*[-| ]?)?[0-9]{4}[-| ]?[0-9]{4}[-| ]?[0-9]{5}$/";
+
+            if (!\preg_match($patron_1, $identidad)) {
+                $r['resp'] = "error";
+                $r['mensaje'] = "El DNI N° $identidad no corresponde a un número correcto, se esperaba [01]-0801-1950-12345, [01] 0801 1950 12345, 0801195012345.";
                 $r['info'] = "";
                 echo \json_encode($r);
                 exit;
@@ -204,9 +202,8 @@ class ConsultarController extends AbstractActionController {
             //En caso de no existir el número de identidad
             if (!$info_persona) {
                 $r['resp'] = "no encontrado";
-                $r['mensaje'] = "La identidad N° $id no  fue encontrada, llenar datos manualmente.";
+                $r['mensaje'] = "El DNI N° $id no  fue encontrado, llenar datos manualmente.";
                 $r['info'] = "";
-
 
                 echo \json_encode($r);
                 exit;
@@ -242,21 +239,19 @@ class ConsultarController extends AbstractActionController {
 
             $utilidad_fechas = new Fechas();
 
-            $datosFormularios = $this->request->getPost()->toArray();
+            $datos_formularios = $this->request->getPost()->toArray();
 
-            $identidad = $datosFormularios['identidad'];
+            $identidad = $datos_formularios['identidad'];
 
             $info_persona = $cne_personas_model->getInfoPersona_cne($identidad);
 
             //Agregar los guiones a la identidad para la presentación
             $id = $this->agregarGuionesIdentidad($identidad);
 
-            $patron_1 = "/^[0-9]{4}[-][0-9]{4}[-][0-9]{5}$/";
-            $patron_2 = "/^[0-9]{4}[ ][0-9]{4}[ ][0-9]{5}$/";
-            $patron_3 = "/^[0-9]{13}$/";
+            $patron_1 = "/^([0-9]*[-| ]?)?[0-9]{4}[-| ]?[0-9]{4}[-| ]?[0-9]{5}$/";
 
-            if (!\preg_match($patron_1, $identidad) && !\preg_match($patron_2, $identidad) && !\preg_match($patron_3, $identidad)) {
-                $r = "<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:\n\<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>";
+            if (!\preg_match($patron_1, $identidad)) {
+                $r = "<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad tiene un formato incorrecto.</span><br>Formatos admitidos:<br>Con guiones <b>0801-1950-12345</b><br>Con espacios <b>0801 1950 12345</b><br>Sin guiones <b>0801195012345</b></div>";
 
                 echo $r;
                 exit;
@@ -277,7 +272,7 @@ class ConsultarController extends AbstractActionController {
 
             //En caso de no existir el número de identidad
             if (!$info_persona) {
-                $r = "<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">La identidad <b>N° $id</b> no pudo ser encontrada.</span></div>";
+                $r = "<div class=\"alert alert-danger\" role=\"alert\" style=\"font-size: 20px;\"><span style=\"font-size: 25px;\">El DNI <b>N° $id</b> no pudo ser encontrado.</span></div>";
 
                 echo $r;
                 exit;
@@ -298,7 +293,6 @@ class ConsultarController extends AbstractActionController {
             $linea_votacion = $info_persona['numero_linea'];
             $estado_votacion = $info_persona['desc_habil_inhabil'];
 
-
             $respuesta = "<div id=\"_imprimir\">"
                     . "<div class=\"panel panel-success\">"
                     . "<div class=\"panel-heading\">"
@@ -313,7 +307,7 @@ class ConsultarController extends AbstractActionController {
                     . "<td style\"width=40%;\"><b>Nombre Completo</b></td><td colspan=\"2\" style\"width=60%\">$nombre_completo</td>"
                     . "</tr>"
                     . "<tr>"
-                    . "<td style\"width=40%;\"><b>N° Identidadd</b></td><td colspan=\"2\" style\"width=60%\">$identidad</td>"
+                    . "<td style\"width=40%;\"><b>N° DNI</b></td><td colspan=\"2\" style\"width=60%\">$identidad</td>"
                     . "</tr>"
                     . "<tr>"
                     . "<td style\"width=40%;\"><b>Genero</b></td><td style\"width=60%\">$genero</td>"
@@ -359,13 +353,18 @@ class ConsultarController extends AbstractActionController {
     }
 
     private function agregarGuionesIdentidad($identidad) {
-        $id = \str_replace(["-", " "], "", $identidad);
+        $dni = \str_replace(["-", " "], "", $identidad);
 
-        $p1 = \substr($id, 0, 4);    // devuelve los primeros 4
-        $p2 = \substr($id, 4, 4);    // devuelve los 4 del año
-        $p3 = \substr($id, 8); // devuelve los últimos 5
+        $extra = \substr($dni, 0, -13);
+        $folio = \substr($dni, -5);
+        $anio = \substr($dni, -9, 4);
+        $depto = \substr($dni, -13, 4);
 
-        return "$p1-$p2-$p3";
+        if (\strlen($extra) > 0) {
+            $extra = $extra . '-';
+        }
+
+        return $extra . $depto . "-" . $anio . "-" . $folio;
     }
 
 }

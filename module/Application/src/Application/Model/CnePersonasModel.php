@@ -54,7 +54,7 @@ class CnePersonasModel extends TableGateway {
     public function getInfoPersona_cne($identidad) {
         
         $id = \str_replace(["-"," "],"",$identidad);
-       
+        
         $SQL = "SELECT p.numero_identidad, CONCAT(p.primer_nombre, ' ', p.segundo_nombre) AS nombres, CONCAT(p.primer_apellido, ' ', p.segundo_apellido) AS apellidos, "
                 . "DATE_FORMAT(p.fecha_nacimiento,'%d-%m-%Y') as fecha_nacimiento_f, p.primer_nombre, p.segundo_nombre, p.primer_apellido, p.segundo_apellido, "
                 . "gen.descripcion_sexo, d.nombre_departamento, m.nombre_municipio, a.descripcion_area, s.nombre_sector_electoral, lp.nombre_lugar_poblado, "
@@ -83,7 +83,31 @@ class CnePersonasModel extends TableGateway {
                 . "AND cv.codigo_centro_votacion = p.codigo_centro_votacion "
                 . "AND et.codigo_estado_tarjeta = p.codigo_estado_tarjeta ";
         
-        $rs = $this->dbAdapter->query($SQL, Adapter::QUERY_MODE_EXECUTE);
+        $SQL_JRV = "SELECT p.numero_identidad, CONCAT(p.primer_nombre, ' ', p.segundo_nombre) AS nombres, CONCAT(p.primer_apellido, ' ', p.segundo_apellido) AS apellidos, "
+                . "DATE_FORMAT(p.fecha_nacimiento,'%d-%m-%Y') as fecha_nacimiento_f, p.primer_nombre, p.segundo_nombre, p.primer_apellido, p.segundo_apellido, "
+                . "gen.descripcion_sexo, cv.nombre_departamento, cv.nombre_municipio, a.descripcion_area, cv.nombre_sector_electoral, lp.nombre_lugar_poblado, "
+                . "chi.desc_habil_inhabil, p.numero_mesa, p.numero_linea, cv.nombre_centro AS centro_votacion "
+                . "FROM cne_personas AS p, cne_generos AS gen, "
+                . "cne_areas AS a, "
+                . "cne_lugar_poblado AS lp, cne_codigos_habi_inha AS chi, cne_jrvs AS cv "
+                . "WHERE p.numero_identidad = '$id' "
+                . "AND gen.codigo_sexo = p.codigo_sexo "
+                . "AND a.codigo_area = p.codigo_area "
+                . "AND lp.codigo_departamento = p.codigo_departamento_domicilio "
+                . "AND lp.codigo_municipio = p.codigo_municipio_domicilio "
+                . "AND lp.codigo_aldea = p.codigo_aldea "
+                . "AND lp.codigo_lugar_poblado = p.codigo_lugar_poblado "
+                . "AND lp.CODIGO_SECTOR_ELECTORAL = p.codigo_sector_electoral "
+                . "AND lp.CODIGO_AREA = p.codigo_area "
+                . "AND chi.codigo_habil_inhabil = p.codigo_habil_inhabil "
+                . "AND cv.codigo_departamento = p.codigo_departamento_domicilio "
+                . "AND cv.codigo_municipio = p.codigo_municipio_domicilio "
+                . "AND cv.codigo_area = p.codigo_area "
+                . "AND cv.codigo_sector_electoral = p.codigo_sector_electoral "
+                . "AND cv.CODIGO_SECTOR_ELECTORAL = p.CODIGO_SECTOR_ELECTORAL "
+                . "AND cv.jrv = p.numero_mesa ";
+  
+        $rs = $this->dbAdapter->query($SQL_JRV, Adapter::QUERY_MODE_EXECUTE);
 
         return $rs->current();
     }
